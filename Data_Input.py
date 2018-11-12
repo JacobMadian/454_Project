@@ -1,12 +1,12 @@
 """
 This file is reserved for testing of the data input functions and code.
 """
-import pandas
-import numpy
-Bus_Loads = pandas.read_excel('C:/Users/JakeLaptop/Documents/GitHub/454_Project/Bus_Loads.xlsx')
-Active_Power_Prod = pandas.read_excel('C:/Users/JakeLaptop/Documents/GitHub/454_Project/Active_Power_Production.xlsx')
-PV_Bus_Ref = pandas.read_excel('C:/Users/JakeLaptop/Documents/GitHub/454_Project/PV_Bus_Reference_Voltages.xlsx')
 
-print('Bus Loads: ' + str(Bus_Loads))
-print('Active Power Produced: ' + str(Active_Power_Prod))
-print('PV Bus Reference Voltages: ' + str(PV_Bus_Ref))
+import openpyxl
+from openpyxl import Workbook
+wb = Workbook()
+wb1 = openpyxl.load_workbook('C:/Users/JakeLaptop/Documents/GitHub/454_Project/Data/Bus_Loads.xlsx')
+cells = wb1.active['A1':'K2']
+
+for c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11 in cells:
+    print("{0:2} {1:2} {2:2} {3:2} {4:2} {5:2} {6:2} {7:2} {8:2} {9:2} {10:2}".format(c1.value, c2.value, c3.value, c4.value, c5.value, c6.value, c7.value, c8.value, c9.value, c10.value, c11.value))

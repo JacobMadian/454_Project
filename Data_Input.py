@@ -8,6 +8,8 @@ It's the module the professor reccomended for excel interactions
 import openpyxl
 from openpyxl import Workbook
 
+"Hello this is new"
+
 "Initializing new Workbook"
 wb = Workbook()
 

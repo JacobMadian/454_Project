@@ -5,18 +5,37 @@ This file is reserved for testing of the data input functions and code.
 Make sure to download an install openpyxl
 It's the module the professor reccomended for excel interactions
 """
-import openpyxl
+import openpyxl as xl
 from openpyxl import Workbook
-
-"Hello this is new"
 
 "Initializing new Workbook"
 wb = Workbook()
 
 "This uses the unique path on my PC to the data file, it will change for other users"
-wb1 = openpyxl.load_workbook('C:/Users/JakeLaptop/Documents/GitHub/454_Project/Data/Bus_Loads.xlsx')
-cells = wb1.active['A1':'K2']
+Load_Book = xl.load_workbook('C:/Users/JakeLaptop/Documents/GitHub/454_Project/Data/Bus_Loads.xlsx').active
+Generator_Book = xl.load_workbook('C:/Users/JakeLaptop/Documents/GitHub/454_Project/Data/Active_Power_Production.xlsx').active
+PV_Book = xl.load_workbook('C:/Users/JakeLaptop/Documents/GitHub/454_Project/Data/PV_Bus_Reference_Voltages.xlsx').active
 
-"Need to find a more efficient way to do this."
-for c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11 in cells:
-    print("{0:2} {1:2} {2:2} {3:2} {4:2} {5:2} {6:2} {7:2} {8:2} {9:2} {10:2}".format(c1.value, c2.value, c3.value, c4.value, c5.value, c6.value, c7.value, c8.value, c9.value, c10.value, c11.value))
+P_List = []
+Q_List = []
+Generator_List = []
+Generator_Power = []
+Reference_Voltage = []
+
+for r in Load_Book['1']:
+    P_List.append(r.value)
+for r in Load_Book['2']:
+    Q_List.append(r.value)
+for r in Generator_Book['1']:
+    Generator_List.append(r.value)
+for r in Generator_Book['2']:
+    Generator_Power.append(r.value)
+for r in PV_Book['2']:
+    Reference_Voltage.append(r.value)
+
+print("P_List: " + str(P_List))
+print("Q_List: " + str(Q_List))
+print("PV Busses are buss numbers: " + str(Generator_List))
+print("Those generators produce this much power(MW): " + str(Generator_Power))
+print("PV Bus reference voltages: " + str(Reference_Voltage))
+

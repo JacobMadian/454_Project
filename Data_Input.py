@@ -7,6 +7,7 @@ It's the module the professor reccomended for excel interactions
 """
 import openpyxl as xl
 from openpyxl import Workbook
+import numpy as np
 
 "Initializing new Workbook"
 wb = Workbook()
@@ -15,12 +16,14 @@ wb = Workbook()
 Load_Book = xl.load_workbook('C:/Users/JakeLaptop/Documents/GitHub/454_Project/Data/Bus_Loads.xlsx').active
 Generator_Book = xl.load_workbook('C:/Users/JakeLaptop/Documents/GitHub/454_Project/Data/Active_Power_Production.xlsx').active
 PV_Book = xl.load_workbook('C:/Users/JakeLaptop/Documents/GitHub/454_Project/Data/PV_Bus_Reference_Voltages.xlsx').active
+Line_Book = xl.load_workbook('C:/Users/JakeLaptop/Documents/GitHub/454_Project/Data/Line_Data.xlsx').active
 
 P_List = []
 Q_List = []
 Generator_List = []
 Generator_Power = []
 Reference_Voltage = []
+Admittance = np.zeros((14,14), dtype = int)
 
 for r in Load_Book['1']:
     P_List.append(r.value)
@@ -33,6 +36,15 @@ for r in Generator_Book['2']:
 for r in PV_Book['2']:
     Reference_Voltage.append(r.value)
 
+for r in Line_Book['A']:
+    if r.value == 1:
+        value = Line_Book['B'+str(r.row)].value
+        admit = Line_Book['C'+str(r.row)].value
+        print("Matrix entry column: "+ str(value) + " Admittance value: " + str(admit))
+        for use in Line_Book['B']:
+            pass
+
+            
 print("P_List: " + str(P_List))
 print("Q_List: " + str(Q_List))
 print("PV Busses are buss numbers: " + str(Generator_List))

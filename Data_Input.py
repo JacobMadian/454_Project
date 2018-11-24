@@ -23,7 +23,7 @@ Q_List = []
 Generator_List = []
 Generator_Power = []
 Reference_Voltage = []
-Admittance = np.zeros((14,14), dtype = int)
+Admittance = np.zeros((14,14), dtype = object)
 
 for r in Load_Book['1']:
     P_List.append(r.value)
@@ -37,17 +37,19 @@ for r in PV_Book['2']:
     Reference_Voltage.append(r.value)
 
 for r in Line_Book['A']:
-    if r.value == 1:
-        value = Line_Book['B'+str(r.row)].value
-        admit = Line_Book['C'+str(r.row)].value
-        print("Matrix entry column: "+ str(value) + " Admittance value: " + str(admit))
-        for use in Line_Book['B']:
-            pass
+    for count in range (0,20):
+        if r.value == count:
+            value = Line_Book['B'+str(r.row)].value
+            admit = Line_Book['D'+str(r.row)].value
+            Admittance[count - 1,value - 1] = (1/float(admit))
+            Admittance[count - 1, count - 1] = (Admittance[count - 1, count - 1] - (1/float(admit)))
+print(Admittance)
 
-            
+"""
 print("P_List: " + str(P_List))
 print("Q_List: " + str(Q_List))
 print("PV Busses are buss numbers: " + str(Generator_List))
 print("Those generators produce this much power(MW): " + str(Generator_Power))
 print("PV Bus reference voltages: " + str(Reference_Voltage))
 
+"""

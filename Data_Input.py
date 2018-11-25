@@ -23,7 +23,7 @@ Q_List = []
 Generator_List = []
 Generator_Power = []
 Reference_Voltage = []
-Admittance = np.zeros((14,14), dtype = object)
+Admit_Form = np.zeros((12,12), dtype = object)
 
 for r in Load_Book['1']:
     P_List.append(r.value)
@@ -41,9 +41,12 @@ for r in Line_Book['A']:
         if r.value == count:
             value = Line_Book['B'+str(r.row)].value
             admit = Line_Book['D'+str(r.row)].value
-            Admittance[count - 1,value - 1] = (1/float(admit))
-            Admittance[count - 1, count - 1] = (Admittance[count - 1, count - 1] - (1/float(admit)))
-print(Admittance)
+            Admit_Form[count - 1, value - 1] = (1/float(admit))
+            Admit_Form[value - 1, count - 1] = (1/float(admit))
+
+diag_mat = -1 * np.diag(Admit_Form.sum(axis=1))
+Admittance = diag_mat + Admit_Form
+np.savetxt("Admit.csv", Admittance, delimiter = ',')
 
 """
 print("P_List: " + str(P_List))
@@ -51,5 +54,5 @@ print("Q_List: " + str(Q_List))
 print("PV Busses are buss numbers: " + str(Generator_List))
 print("Those generators produce this much power(MW): " + str(Generator_Power))
 print("PV Bus reference voltages: " + str(Reference_Voltage))
-
+print("Admit_Form Matrix: " + str(Admit_Form))
 """

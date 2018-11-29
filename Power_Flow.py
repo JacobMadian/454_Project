@@ -38,7 +38,9 @@ Full_Admit = np.zeros((12,12), dtype = complex)
 
 #Populating lists and matrices initialized above
 """
-The for loops below examine a row in various books, then append the values found into the lists created above
+
+DATA IMPORT
+
 """
 for r in Load_Book['1']:
     P_List.append(r.value)
@@ -51,7 +53,11 @@ for r in Generator_Book['2']:
 for r in PV_Book['2']:
     Reference_Voltage.append(r.value)
 
-"""Filling the R and Z admittance matrices, I did these seperately to not use something to differenciate G and B in the Admittance Matrix"""
+"""
+
+FORMING THE ADMITTANCE MATRIX
+
+"""
 for r in range(0,17):
     Admit_R.append(Line_Book['C'+str(r + 1)].value)
     Admit_Z.append(Line_Book['D'+str(r + 1)].value*1.j)
@@ -76,6 +82,16 @@ diag_Y = -1 * np.diag(Full_Admit.sum(axis = 0))
 Y_Matrix = diag_Y + Full_Admit
 
 np.savetxt("Admittance_Matrix.csv", Y_Matrix, delimiter = ',')
+
+"""
+
+CREATING MISMATCH EQUATIONS
+
+"""
+
+
+
+
 
 #Printouts of all lists in used
 """

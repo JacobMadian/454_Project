@@ -70,6 +70,7 @@ for i in range(len(Admit_R)):
 for i in range(len(Z_total)):
     Z_total[i] = 1/Z_total[i]
 
+
 #Adding list values into full admittance matrix
 for r in range(Line_Book.max_row):
     row_coor = Line_Book['A'+str(r + 1)].value
@@ -88,10 +89,13 @@ np.savetxt("Admittance_Matrix.csv", Y_Matrix, delimiter = ',')
 CREATING MISMATCH EQUATIONS
 
 """
+#Thinking for loop to create Pk
 
-
-
-
+P_k = []
+for k in range(1,np.size(Y_Matrix,0)):
+    for i in range(1,np.size(Y_Matrix,0)):
+        #P_k.append(abs()
+        pass
 
 #Printouts of all lists in used
 """

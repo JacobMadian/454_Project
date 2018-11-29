@@ -28,12 +28,13 @@ Q_List = []
 Generator_List = []
 Generator_Power = []
 Reference_Voltage = []
-Admit_Z = np.zeros((12,12), dtype = object)
-Admit_R = np.zeros((12,12), dtype = object)
-Test_Z = np.zeros([17,17])
-Test_R = np.zeros([17,17])
+Admit_Z = []
+Admit_R = []
+Z_total = []
 Mismatch_P = []
 Mismatch_Q = []
+diag_Y = []
+Full_Admit = np.zeros((12,12), dtype = complex)
 
 #Populating lists and matrices initialized above
 """
@@ -52,50 +53,35 @@ for r in PV_Book['2']:
 
 """Filling the R and Z admittance matrices, I did these seperately to not use something to differenciate G and B in the Admittance Matrix"""
 for r in range(0,17):
-    Test_Z[1,r] = Line_Book['D'+str(r + 1)].value
-    Test_R[1,r] = Line_Book['C'+str(r + 1)].value
-Z = Test_R+1.j*Test_Z
+    Admit_R.append(Line_Book['C'+str(r + 1)].value)
+    Admit_Z.append(Line_Book['D'+str(r + 1)].value*1.j)
 
-Y = 1./Z
-np.savetxt("Y_Array.csv",Y, delimiter = "(")
+#Combining the R & Z Lists
+for i in range(len(Admit_R)):
+    Z_total.append(Admit_R[i]+Admit_Z[i])
 
-print("yel: "+ str(Y[0]))
+#Inverting to the Y Matrix
+for i in range(len(Z_total)):
+    Z_total[i] = 1/Z_total[i]
 
-Full_Admit = np.zeros((12,12))
-for r in range(0,Line_Book.max_row):
+#Adding list values into full admittance matrix
+for r in range(Line_Book.max_row):
     row_coor = Line_Book['A'+str(r + 1)].value
     col_coor = Line_Book['B'+str(r + 1)].value
-    #Full_Admit[row_coor, col_coor] = Y_List[0,r]
+    Full_Admit[row_coor - 1, col_coor - 1] = Z_total[r]
+    Full_Admit[col_coor - 1, row_coor - 1] = Z_total[r]
 
-#print(Full_Admit)
+#Adding the diagonal sum of entries into the matrix
+diag_Y = -1 * np.diag(Full_Admit.sum(axis = 0))
+Y_Matrix = diag_Y + Full_Admit
 
-
-#Finding the sums of the connections into and out of a bus, then summing and creating the diagonal for the Admittance matrix
-#diag_z = -1 * np.diag(Admit_Z.sum(axis=1))
-#diag_r = -1 * np.diag(Admit_R.sum(axis=1))
-
-"""This forms the complete Admittance Matrix"""
-#Admittance_Z = diag_z + Admit_Z
-#Admittance_R = diag_r + Admit_R
-
-"""
-This saves both admittance matrices to csv files
-
-To fix the scientific notation in the csv, do ctrl+A, then crtl+~
-"""
-#np.savetxt("Admit_Z.csv", Admit_Z, delimiter = ',')
-#np.savetxt("Admit_R.csv", Admit_R, delimiter = ',')
-
-"""
-Below is testing the construction of the mismatch equations
-"""
-
+np.savetxt("Admittance_Matrix.csv", Y_Matrix, delimiter = ',')
 
 #Printouts of all lists in used
 """
 print("P_List: " + str(P_List))
 print("Q_List: " + str(Q_List))
-print("PV Busses are buss numbers: " + str(Generator_List))
+print("PV Busses are bus numbers: " + str(Generator_List))
 print("Those generators produce this much power(MW): " + str(Generator_Power))
 print("PV Bus reference voltages: " + str(Reference_Voltage))
 """

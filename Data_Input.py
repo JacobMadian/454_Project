@@ -16,10 +16,10 @@ import numpy as np
 wb = Workbook()
 
 #This uses the unique path on my PC to the data file, it will change for other users
-Load_Book = xl.load_workbook('C:/Users/JakeDesktop/Documents/Git/454_Project/Data/Bus_Loads.xlsx').active
-Generator_Book = xl.load_workbook('C:/Users/JakeDesktop/Documents/Git/454_Project/Data/Active_Power_Production.xlsx').active
-PV_Book = xl.load_workbook('C:/Users/JakeDesktop/Documents/Git/454_Project/Data/PV_Bus_Reference_Voltages.xlsx').active
-Line_Book = xl.load_workbook('C:/Users/JakeDesktop/Documents/Git/454_Project/Data/Line_Data.xlsx').active
+Load_Book = xl.load_workbook('C:/Users/JakeLaptop/Documents/GitHub/454_Project/Data/Bus_Loads.xlsx').active
+Generator_Book = xl.load_workbook('C:/Users/JakeLaptop/Documents/GitHub/454_Project/Data/Active_Power_Production.xlsx').active
+PV_Book = xl.load_workbook('C:/Users/JakeLaptop/Documents/GitHub/454_Project/Data/PV_Bus_Reference_Voltages.xlsx').active
+Line_Book = xl.load_workbook('C:/Users/JakeLaptop/Documents/GitHub/454_Project/Data/Line_Data.xlsx').active
 
 #Forming all lists and matrices to be populated with given data
 
@@ -30,6 +30,10 @@ Generator_Power = []
 Reference_Voltage = []
 Admit_Z = np.zeros((12,12), dtype = object)
 Admit_R = np.zeros((12,12), dtype = object)
+Test_Z = np.zeros([17,17])
+Test_R = np.zeros([17,17])
+Mismatch_P = []
+Mismatch_Q = []
 
 #Populating lists and matrices initialized above
 """
@@ -47,51 +51,44 @@ for r in PV_Book['2']:
     Reference_Voltage.append(r.value)
 
 """Filling the R and Z admittance matrices, I did these seperately to not use something to differenciate G and B in the Admittance Matrix"""
+for r in range(0,17):
+    Test_Z[1,r] = Line_Book['D'+str(r + 1)].value
+    Test_R[1,r] = Line_Book['C'+str(r + 1)].value
+Z = Test_R+1.j*Test_Z
 
-#Goes down the A column
-for r in Line_Book['A']:
-    #Using a for loop to make sure all values are taken into account
-    for count in range (0,20):
-        #This ensures that values in the data that should be in column one are put into that column
-        if r.value == count:
-            #I use "count" and "value" to describe the potition in the admittance matrix that  "admit" should be placed at
-            value = Line_Book['B'+str(r.row)].value
-            admit = Line_Book['D'+str(r.row)].value
-            #Since Y12 = Y21, the value is placed at both the original and flipped coordinates, giving symmetry across diagonal
-            Admit_Z[count - 1, value - 1] = (1/float(admit))
-            Admit_Z[value - 1, count - 1] = (1/float(admit))
+Y = 1./Z
+np.savetxt("Y_Array.csv",Y, delimiter = "(")
 
-#Same process as above, but for the Admittance matrix based on the resistances, not impedances
-for r in Line_Book['A']:
-    for count in range (0,20):
-        if r.value == count:
-            value = Line_Book['B'+str(r.row)].value
-            admit = Line_Book['C'+str(r.row)].value
-            #This is necessary since some resistance values are 0, so doing the 1/admit calculation means dividing by zero
-            try:
-                Admit_R[value - 1, count - 1] = (1/float(admit))
-                Admit_R[count - 1, value - 1] = (1/float(admit))
-            #If the divide by zero error occurs, the except line below is executed, and passed, leaving it as 0
-            except:
-                pass
+print("yel: "+ str(Y[0]))
+
+Full_Admit = np.zeros((12,12))
+for r in range(0,Line_Book.max_row):
+    row_coor = Line_Book['A'+str(r + 1)].value
+    col_coor = Line_Book['B'+str(r + 1)].value
+    #Full_Admit[row_coor, col_coor] = Y_List[0,r]
+
+#print(Full_Admit)
 
 
 #Finding the sums of the connections into and out of a bus, then summing and creating the diagonal for the Admittance matrix
-diag_z = -1 * np.diag(Admit_Z.sum(axis=1))
-diag_r = -1 * np.diag(Admit_R.sum(axis=1))
+#diag_z = -1 * np.diag(Admit_Z.sum(axis=1))
+#diag_r = -1 * np.diag(Admit_R.sum(axis=1))
 
 """This forms the complete Admittance Matrix"""
-Admittance_Z = diag_z + Admit_Z
-Admittance_R = diag_r + Admit_R
+#Admittance_Z = diag_z + Admit_Z
+#Admittance_R = diag_r + Admit_R
 
 """
 This saves both admittance matrices to csv files
 
 To fix the scientific notation in the csv, do ctrl+A, then crtl+~
 """
-np.savetxt("Admit_Z.csv", Admittance_Z, delimiter = ',')
-np.savetxt("Admit_R.csv", Admittance_R, delimiter = ',')
+#np.savetxt("Admit_Z.csv", Admit_Z, delimiter = ',')
+#np.savetxt("Admit_R.csv", Admit_R, delimiter = ',')
 
+"""
+Below is testing the construction of the mismatch equations
+"""
 
 
 #Printouts of all lists in used

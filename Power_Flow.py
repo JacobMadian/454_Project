@@ -31,9 +31,13 @@ Reference_Voltage = []
 Admit_Z = []
 Admit_R = []
 Z_total = []
+B = np.zeros((1,Line_Book.max_row))
 Mismatch_P = []
 Mismatch_Q = []
 diag_Y = []
+indices = []
+values = []
+V = np.ones((1,12))
 Full_Admit = np.zeros((12,12), dtype = complex)
 
 #Populating lists and matrices initialized above
@@ -50,8 +54,14 @@ for r in Generator_Book['1']:
     Generator_List.append(r.value)
 for r in Generator_Book['2']:
     Generator_Power.append(r.value)
-for r in PV_Book['2']:
-    Reference_Voltage.append(r.value)
+for r in PV_Book['A']:
+    indices.append(r.value)
+for a in PV_Book['B']:
+    values.append(a.value)
+for i in range(0,len(indices)):
+    V[0,indices[i] - 1] = values[i]
+    
+
 
 """
 
@@ -61,6 +71,11 @@ FORMING THE ADMITTANCE MATRIX
 for r in range(0,17):
     Admit_R.append(Line_Book['C'+str(r + 1)].value)
     Admit_Z.append(Line_Book['D'+str(r + 1)].value*1.j)
+
+for i in range(1,Line_Book.max_row):
+    for k in range(1,Line_Book.max_row):
+        if Line_Book['A'+str(k)].value == i:
+            B[0,i - 1] = B[0,i - 1] + (Line_Book['E'+str(k)].value)/2
 
 #Combining the R & Z Lists
 for i in range(len(Admit_R)):
@@ -75,12 +90,14 @@ for i in range(len(Z_total)):
 for r in range(Line_Book.max_row):
     row_coor = Line_Book['A'+str(r + 1)].value
     col_coor = Line_Book['B'+str(r + 1)].value
-    Full_Admit[row_coor - 1, col_coor - 1] = Z_total[r]
-    Full_Admit[col_coor - 1, row_coor - 1] = Z_total[r]
+    Full_Admit[row_coor - 1, col_coor - 1] = -1 * Z_total[r]
+    Full_Admit[col_coor - 1, row_coor - 1] = -1 * Z_total[r]
 
 #Adding the diagonal sum of entries into the matrix
-diag_Y = -1 * np.diag(Full_Admit.sum(axis = 0))
-Y_Matrix = diag_Y + Full_Admit
+B = B*1.j
+diag_Y =  np.diag(Full_Admit.sum(axis = 0))
+diag_B =  np.diag(B)
+Y_Matrix = diag_Y + diag_B+ Full_Admit
 
 np.savetxt("Admittance_Matrix.csv", Y_Matrix, delimiter = ',')
 
@@ -90,12 +107,20 @@ CREATING MISMATCH EQUATIONS
 
 """
 #Thinking for loop to create Pk
+V = []
 
+#Reference_Voltage
+P = P_List
+Q = Q_List
+theta = []
 P_k = []
+
+
 for k in range(1,np.size(Y_Matrix,0)):
     for i in range(1,np.size(Y_Matrix,0)):
-        #P_k.append(abs()
+        #P_k.append(V[k]*V[i]*(Y_Matrix[k][i].real*np.cos(theta[k]-theta[i])-Y_Matrix[k][i].imag*np.sin(theta[k]-theta[i]))))
         pass
+
 
 #Printouts of all lists in used
 """
